@@ -1,9 +1,14 @@
+#!/usr/bin/env python
+
 import string
 import ctypes
 import os
+from threading  import Thread
+from time import sleep
 
 # For headless browsing.  Life made easy.
-from splinter import Browser
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 
 # Tkinter main
 from Tkinter import Tk, Frame
@@ -15,21 +20,110 @@ from Tkinter import LEFT, RIGHT, BOTH, CENTER
 from Tkinter import N, NE, E, SE, S, SW, W, NW
 # Tkinter state options
 from Tkinter import DISABLED, NORMAL
+# Tkinter position options
+from Tkinter import END
 
 # Style?  Idk, but this is cool
 from ttk import Style
 
 class Application(Frame):
+    threadRunning = False
+
     def __init__(self, parent):
         Frame.__init__(self, parent)
         self.parent = parent
         self.initUI()
 
+    def threadded(self,*config):
+        self.threadRunning = True
+
+        debugger = config[5]
+
+        self.addDebug(debugger,"Posting thread started")
+
+        self.addDebug(debugger,"  - Configuration:")
+        self.addDebug(debugger,"      Output Path: %s" % (config[3]))
+        self.addDebug(debugger,"      # of Posts: %d" % (int(config[4])))
+
+        driver = webdriver.PhantomJS('phantomjs')
+        self.addDebug(debugger,"  - Driver successfully loaded")
+
+        driver.get('https://accounts.google.com/ServiceLogin?service=oz&continue=https://plus.google.com/')
+        self.addDebug(debugger,"  - Successfully navigated to G+ login page")
+        
+        driver.find_element_by_id("Email").is_displayed()
+        driver.find_element_by_id("Email").send_keys(config[0])
+        driver.find_element_by_id("Passwd").is_displayed()
+        driver.find_element_by_id("Passwd").send_keys(config[1])
+        driver.find_element_by_name("signIn").click()
+        self.addDebug(debugger,"  - Attempting to log in")
+        
+        if driver.current_url != "https://plus.google.com/":
+            self.addDebug(debugger,"  - Incorrect username/password")
+        else:
+            self.addDebug(debugger,"  - Successfully logged in")
+
+            for x in range(0,int(config[4])):
+                self.addDebug(debugger,"  - Searching for text input")
+
+                tempHolder = driver.find_elements_by_tag_name("body")
+                tempHolder2 = driver.find_elements_by_tag_name("body")
+
+                for element in driver.find_elements_by_tag_name("div"):
+                    if element.get_attribute("guidedhelpid") == "sharebox_textarea":
+                        element.click()
+                        break
+
+                sleep(5)
+
+                for element in driver.find_elements_by_tag_name("div"):
+                    if element.get_attribute("guidedhelpid") == "sharebox_editor":
+                        tempHolder = element
+                        break
+
+                for element in tempHolder.find_elements_by_tag_name("div"):
+                    if element.get_attribute("role") == "textbox":
+                        self.addDebug(debugger, "  - Found it!")
+                        self.addDebug(debugger,"  - Inputting Text")
+                        element.send_keys(config[2])
+                        break
+
+                self.addDebug(debugger,"  - Searching for submit button")
+                for element in driver.find_elements_by_tag_name("div"):
+                    if element.get_attribute("guidedhelpid") == "shareboxcontrols":
+                        tempHolder2 = element
+                        break
+
+                for element in tempHolder2.find_elements_by_tag_name("div"):
+                    if element.get_attribute("guidedhelpid") == "sharebutton":
+                        self.addDebug(debugger, "  - Found it!")
+                        element.click()
+                        break
+
+                self.addDebug(debugger,"  - Waiting 5 seconds before another post")
+                sleep(5)
+        
+        self.addDebug(debugger,"Posting thread finished")
+        self.threadRunning = False
+
     def addDebug(self,parent,text):
         parent.insert('end',"%s\n" % (text))
 
-    def doPosting(self,debugLogger,username,password,output,num,delay):
-        self.addDebug(debugLogger.insert('end',"%s\n"))
+    def doPosting(self,me,debugLogger,username,password,message,output,num):
+        if self.threadRunning != True:
+            settings = [
+                username,
+                password,
+                message,
+                output,
+                num,
+                debugLogger
+            ]
+
+            thread = Thread(target=self.threadded, args=(settings))
+            thread.start()
+        else:
+            self.addDebug(debugLogger,"Attempted to start another posting thread.  Bad.")
 
     def initUI(self):
         # Main Window
@@ -72,19 +166,13 @@ class Application(Frame):
         L4.grid(row=3, column=0, sticky=E, pady=1)
         S1 = Spinbox(self, from_=1, to=9999999, width=28)
         S1.grid(row=3, column=1, ipady=1, sticky=E)
-
-        # Delay Between Posts
-        L5 = Label(self, text="Delay (seconds)")
-        L5.grid(row=4, column=0, sticky=E, pady=1)
-        S2 = Spinbox(self, from_=0, to=120, width=28)
-        S2.grid(row=4, column=1, ipady=1, sticky=E)
         
         # Post Input
         T1 = Text(self, width=30)
         T1.grid(row=5, columnspan=2, sticky=W+E, pady=1)
         
         # Start button
-        B1 = Button(self, text="Start Posting", lambda:do)
+        B1 = Button(self, text="Start Posting", command=lambda:self.doPosting(B1,TL_T1,E1.get(),E2.get(),T1.get(1.0,END),E3.get(),S1.get()))
         B1.grid(row=6,columnspan=2, sticky=W+E)
 
         # Debug button
