@@ -76,7 +76,7 @@ class Application(Frame):
         B2 = Button(self, text="Debug log", command=lambda:Toplevel1.state("normal"))
         B2.grid(row=5, columnspan=2, sticky=W+E)
 
-        self.addDebug(TL_T1,"Started successfully.")
+        self.addDebug(TL_T1,"Started successfully")
 
 
 def main():
