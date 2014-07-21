@@ -51,9 +51,7 @@ class Application(Frame):
         driver.get('https://accounts.google.com/ServiceLogin?service=oz&continue=https://plus.google.com/')
         self.addDebug(debugger,"  - Successfully navigated to G+ login page")
         
-        driver.find_element_by_id("Email").is_displayed()
         driver.find_element_by_id("Email").send_keys(config[0])
-        driver.find_element_by_id("Passwd").is_displayed()
         driver.find_element_by_id("Passwd").send_keys(config[1])
         driver.find_element_by_name("signIn").click()
         self.addDebug(debugger,"  - Attempting to log in")
@@ -67,7 +65,13 @@ class Application(Frame):
                 self.addDebug(debugger,"  - Searching for text input")
 
                 tempHolder = driver.find_elements_by_tag_name("body")
-                tempHolder2 = driver.find_elements_by_tag_name("body")
+
+                profile = ""
+
+                for element in driver.find_elements_by_tag_name("a"):
+                    if element.get_attribute("aria-label") == "Profile":
+                        profile = element.get_attribute("href")
+                        break
 
                 for element in driver.find_elements_by_tag_name("div"):
                     if element.get_attribute("guidedhelpid") == "sharebox_textarea":
@@ -91,14 +95,22 @@ class Application(Frame):
                 self.addDebug(debugger,"  - Searching for submit button")
                 for element in driver.find_elements_by_tag_name("div"):
                     if element.get_attribute("guidedhelpid") == "shareboxcontrols":
-                        tempHolder2 = element
+                        tempHolder = element
                         break
 
-                for element in tempHolder2.find_elements_by_tag_name("div"):
+                for element in tempHolder.find_elements_by_tag_name("div"):
                     if element.get_attribute("guidedhelpid") == "sharebutton":
                         self.addDebug(debugger, "  - Found it!")
                         element.click()
                         break
+
+                self.addDebug(debugger,"  - Searching for post")
+
+                for element in driver.find_elements_by_tag_name("a"):
+                    if element.getAttribute("target") == "_blank":
+                        if profile + "/posts/" in element.getAttribute("href"):
+                            self.addDebug(debugger,"  - %s" % (element.getAttribute("href")))
+                            break
 
                 self.addDebug(debugger,"  - Waiting 5 seconds before another post")
                 sleep(5)
