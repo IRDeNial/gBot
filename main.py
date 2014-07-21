@@ -8,7 +8,7 @@ from splinter import Browser
 # Tkinter main
 from Tkinter import Tk, Frame
 # Tkinter GUI widgets
-from Tkinter import Button, Text, Entry, Label, Toplevel
+from Tkinter import Button, Text, Entry, Label, Toplevel, Spinbox
 # Tkinter alignment options
 from Tkinter import LEFT, RIGHT, BOTH, CENTER
 # Tkinter directions W=West, E=East, etc...
@@ -28,6 +28,9 @@ class Application(Frame):
     def addDebug(self,parent,text):
         parent.insert('end',"%s\n" % (text))
 
+    def doPosting(self,debugLogger,username,password,output,num,delay):
+        self.addDebug(debugLogger.insert('end',"%s\n"))
+
     def initUI(self):
         # Main Window
         self.parent.title("gBot")
@@ -36,9 +39,9 @@ class Application(Frame):
         self.pack(fill=BOTH, expand=1)
 
         # Debug Window
-        Toplevel1 = Toplevel()
-        TL_L1 = Label(Toplevel1, text="DEBUG CONSOLE", width=50)
-        TL_L1.pack()
+        Toplevel1 = Toplevel(self)
+        Toplevel1.title("gBot Debug Console")
+        self.pack(fill=BOTH, expand=1)
         TL_T1 = Text(Toplevel1, width=50)
         TL_T1.pack()
         Toplevel1.state("withdrawn")
@@ -63,18 +66,30 @@ class Application(Frame):
         E3 = Entry(self, width=30)
         E3.grid(row=2, column=1, ipady=1, sticky=E)
         E3.insert(0, "%s\links.txt" % (os.getcwd()))
+
+        # Num Posts
+        L4 = Label(self, text="# Of Posts")
+        L4.grid(row=3, column=0, sticky=E, pady=1)
+        S1 = Spinbox(self, from_=1, to=9999999, width=28)
+        S1.grid(row=3, column=1, ipady=1, sticky=E)
+
+        # Delay Between Posts
+        L5 = Label(self, text="Delay (seconds)")
+        L5.grid(row=4, column=0, sticky=E, pady=1)
+        S2 = Spinbox(self, from_=0, to=120, width=28)
+        S2.grid(row=4, column=1, ipady=1, sticky=E)
         
         # Post Input
         T1 = Text(self, width=30)
-        T1.grid(row=3, columnspan=2, sticky=W+E, pady=1)
+        T1.grid(row=5, columnspan=2, sticky=W+E, pady=1)
         
         # Start button
-        B1 = Button(self, text="Start Posting")
-        B1.grid(row=4,columnspan=2, sticky=W+E)
+        B1 = Button(self, text="Start Posting", lambda:do)
+        B1.grid(row=6,columnspan=2, sticky=W+E)
 
         # Debug button
         B2 = Button(self, text="Debug log", command=lambda:Toplevel1.state("normal"))
-        B2.grid(row=5, columnspan=2, sticky=W+E)
+        B2.grid(row=7, columnspan=2, sticky=W+E)
 
         self.addDebug(TL_T1,"Started successfully")
 
