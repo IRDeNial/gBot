@@ -5,9 +5,11 @@ import ctypes
 import os
 from threading  import Thread
 from time import sleep
+import re
 
 # For headless browsing.  Life made easy.
 from selenium import webdriver
+
 from selenium.common.exceptions import NoSuchElementException
 
 # Tkinter main
@@ -41,6 +43,17 @@ class Application(Frame):
 
         self.addDebug(debugger,"Posting thread started")
 
+        if config[0] == "":
+            self.addDebug(debugger,"  - No username")
+            self.addDebug(debugger,"Posting thread finished")
+            self.threadRunning = False
+            return
+        if config[1] == "":
+            self.addDebug(debugger,"  - No password")
+            self.addDebug(debugger,"Posting thread finished")
+            self.threadRunning = False
+            return
+
         self.addDebug(debugger,"  - Configuration:")
         self.addDebug(debugger,"      Output Path: %s" % (config[3]))
         self.addDebug(debugger,"      # of Posts: %d" % (int(config[4])))
@@ -61,18 +74,21 @@ class Application(Frame):
         else:
             self.addDebug(debugger,"  - Successfully logged in")
 
-            for x in range(0,int(config[4])):
-                self.addDebug(debugger,"  - Searching for text input")
+            profileLink = ""
 
+            self.addDebug(debugger,"  - Searching for profile link")
+            for element in driver.find_elements_by_tag_name("a"):
+                if element.get_attribute("aria-label") == "Profile":
+                    m = re.search('/plus.google.com/(.+)', element.get_attribute("href"))
+                    if m:
+                        profileLink = m.group(1)
+                    self.addDebug(debugger,"  - %s" % (profileLink))
+                    break
+
+            for x in range(0,int(config[4])):
                 tempHolder = driver.find_elements_by_tag_name("body")
 
-                profile = ""
-
-                for element in driver.find_elements_by_tag_name("a"):
-                    if element.get_attribute("aria-label") == "Profile":
-                        profile = element.get_attribute("href")
-                        break
-
+                self.addDebug(debugger,"  - Searching for text input")
                 for element in driver.find_elements_by_tag_name("div"):
                     if element.get_attribute("guidedhelpid") == "sharebox_textarea":
                         element.click()
@@ -104,13 +120,18 @@ class Application(Frame):
                         element.click()
                         break
 
+                sleep(5)
+
+                driver.get("https://plus.google.com/" + profileLink + "/posts")
                 self.addDebug(debugger,"  - Searching for post")
 
                 for element in driver.find_elements_by_tag_name("a"):
-                    if element.getAttribute("target") == "_blank":
-                        if profile + "/posts/" in element.getAttribute("href"):
-                            self.addDebug(debugger,"  - %s" % (element.getAttribute("href")))
+                    try: 
+                        if (profileLink + "/posts/") in element.get_attribute("href"):
+                            self.addDebug(debugger,"  - %s" % (element.get_attribute("href")))
                             break
+                    except:
+                        continue
 
                 self.addDebug(debugger,"  - Waiting 5 seconds before another post")
                 sleep(5)
@@ -120,6 +141,7 @@ class Application(Frame):
 
     def addDebug(self,parent,text):
         parent.insert('end',"%s\n" % (text))
+        parent.see(END)
 
     def doPosting(self,me,debugLogger,username,password,message,output,num):
         if self.threadRunning != True:
