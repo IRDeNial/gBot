@@ -3,6 +3,7 @@
 import string
 import ctypes
 import os
+from os import path
 from threading  import Thread
 from time import sleep
 import re
@@ -53,6 +54,8 @@ class Application(Frame):
             self.addDebug(debugger,"Posting thread finished")
             self.threadRunning = False
             return
+
+        f = open(config[3], "a")
 
         self.addDebug(debugger,"  - Configuration:")
         self.addDebug(debugger,"      Output Path: %s" % (config[3]))
@@ -128,7 +131,8 @@ class Application(Frame):
                 for element in driver.find_elements_by_tag_name("a"):
                     try: 
                         if (profileLink + "/posts/") in element.get_attribute("href"):
-                            self.addDebug(debugger,"  - %s" % (element.get_attribute("href")))
+                            f.write(element.get_attribute("href"))
+                            self.addDebug(debugger,"  - Found URL, saving")
                             break
                     except:
                         continue
@@ -138,6 +142,7 @@ class Application(Frame):
         
         self.addDebug(debugger,"Posting thread finished")
         self.threadRunning = False
+        f.close()
 
     def addDebug(self,parent,text):
         parent.insert('end',"%s\n" % (text))
