@@ -131,14 +131,14 @@ class Application(Frame):
                 for element in driver.find_elements_by_tag_name("a"):
                     try: 
                         if (profileLink + "/posts/") in element.get_attribute("href"):
-                            f.write(element.get_attribute("href"))
+                            f.write(element.get_attribute("href") + "\r\n")
                             self.addDebug(debugger,"  - Found URL, saving")
                             break
                     except:
                         continue
 
-                self.addDebug(debugger,"  - Waiting 5 seconds before another post")
-                sleep(5)
+                self.addDebug(debugger,"  - Waiting 1 second before another post")
+                sleep(1)
         
         self.addDebug(debugger,"Posting thread finished")
         self.threadRunning = False

@@ -1,7 +1,0 @@
-PhantomJS is launching GhostDriver...
-[INFO  - 2014-07-22T02:15:28.516Z] GhostDriver - Main - running on port 54781
-[INFO  - 2014-07-22T02:15:29.425Z] Session [0d294970-1146-11e4-b669-9f750e885cdc] - page.settings - {"XSSAuditingEnabled":false,"javascriptCanCloseWindows":true,"javascriptCanOpenWindows":true,"javascriptEnabled":true,"loadImages":true,"localToRemoteUrlAccessEnabled":false,"userAgent":"Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/1.9.7 Safari/534.34","webSecurityEnabled":true}
-[INFO  - 2014-07-22T02:15:29.425Z] Session [0d294970-1146-11e4-b669-9f750e885cdc] - page.customHeaders:  - {}
-[INFO  - 2014-07-22T02:15:29.425Z] Session [0d294970-1146-11e4-b669-9f750e885cdc] - Session.negotiatedCapabilities - {"browserName":"phantomjs","version":"1.9.7","driverName":"ghostdriver","driverVersion":"1.1.0","platform":"windows-8-32bit","javascriptEnabled":true,"takesScreenshot":true,"handlesAlerts":false,"databaseEnabled":false,"locationContextEnabled":false,"applicationCacheEnabled":false,"browserConnectionEnabled":false,"cssSelectorsEnabled":true,"webStorageEnabled":false,"rotatable":false,"acceptSslCerts":false,"nativeEvents":true,"proxy":{"proxyType":"direct"}}
-[INFO  - 2014-07-22T02:15:29.425Z] SessionManagerReqHand - _postNewSessionCommand - New Session Created: 0d294970-1146-11e4-b669-9f750e885cdc
-[INFO  - 2014-07-22T02:20:28.519Z] SessionManagerReqHand - _cleanupWindowlessSessions - Asynchronous Sessions clean-up phase starting NOW
